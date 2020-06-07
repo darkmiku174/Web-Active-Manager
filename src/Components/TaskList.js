@@ -11,6 +11,10 @@ class TaskList extends Component {
         this.props.onDelete(id);
     }
 
+    onUpdateItem = (id) => {
+        this.props.onUpdateItem(id);
+    }
+
     render() {
         var { tasks } = this.props
         var elemTask = tasks.map((task, index) => {
@@ -19,7 +23,8 @@ class TaskList extends Component {
                             task={ task } 
                             index = { index } 
                             onUpdateStatus = { this.onUpdateStatus }
-                            onDelete = { this.onDelete }/>
+                            onDelete = { this.onDelete }
+                            onUpdateItem = { this.onUpdateItem } />
         });
         return (
             <div className="row mt-15">

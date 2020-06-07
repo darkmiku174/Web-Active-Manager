@@ -5,8 +5,19 @@ class TaskForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            id: "",
             name: "",
             status: false
+        };
+    }
+
+    componentWillMount() {
+        if (this.props.taskEditor){
+            this.setState({
+                id: this.props.taskEditor.id,
+                name: this.props.taskEditor.name,
+                status: this.props.taskEditor.status
+            });
         };
     }
 
@@ -46,7 +57,7 @@ class TaskForm extends Component {
             <div className="panel panel-warning">
                 <div className="panel-heading">
                     <h3 className="panel-title">
-                        Thêm Công Việc
+                        { this.state.id ? "Cập Nhật Công Việc" : "Thêm Công Việc" }
                         <button type="button" className="close" aria-label="Close" onClick = { this.onCloseForm }>
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -65,7 +76,9 @@ class TaskForm extends Component {
                         </select>
                         <br />
                         <div className="text-center">
-                            <button type="submit" className="btn btn-warning">Thêm</button>&nbsp;
+                            <button type="submit" className="btn btn-warning">
+                                { this.state.id ? "Sửa" : "Thêm" }
+                            </button>&nbsp;
                             <button type="submit" className="btn btn-danger" onClick = { this.onClear }>Hủy Bỏ</button>
                         </div>
                     </form>

@@ -10,7 +10,8 @@ class App extends Component {
         super(props);
         this.state = {
             tasks : [],
-            isDisplayForm : false
+            isDisplayForm : false,
+            taskEditor: null
         };
     }
 
@@ -20,26 +21,35 @@ class App extends Component {
             tasks : JSON.parse(localStorage.getItem('tasks'))
             });
         }
-        
-    }
-
-    onToggleForm = () => {
-        this.setState({
-            isDisplayForm : !this.state.isDisplayForm
-        });
     }
 
     onCloseForm = () => {
         this.setState({
-            isDisplayForm : !this.state.isDisplayForm
+            isDisplayForm : !this.state.isDisplayForm,
+        });
+    }
+
+    onToggleForm = () => {
+        this.setState({
+            isDisplayForm : !this.state.isDisplayForm,
+            taskEditor : null
         });
     }
 
     onSubmit = (data) => {
         var { tasks } = this.state;
-        var randomstring = require("randomstring");
-        data.id = randomstring.generate();
-        tasks.push(data);
+        if (data.id === ""){
+            //Insert Item
+            var randomstring = require("randomstring");
+            data.id = randomstring.generate();
+            tasks.push(data);
+        }else{
+            //Update item
+            var index = this.findIndex(data.id);
+            if(index !== -1){
+                tasks[index]=data; 
+            };
+        }
         this.setState({
             tasks : tasks
         });
@@ -60,7 +70,7 @@ class App extends Component {
     }
 
     onDelete = (id) => {
-        var { tasks } = this.state;
+        var { tasks, isDisplayForm } = this.state;
         var index = this.findIndex(id);
         if (index !== -1) {
             tasks.pop(tasks[index]);
@@ -68,6 +78,20 @@ class App extends Component {
                 tasks : tasks
             });
             localStorage.setItem('tasks', JSON.stringify(tasks));
+        };
+        if(isDisplayForm){
+            this.onCloseForm();
+        }
+    }
+
+    onUpdateItem = (id) => {
+        var { tasks } = this.state;
+        var index = this.findIndex(id);
+        if (index !== -1) {
+            var taskEditor = tasks[index];
+            this.setState({
+                taskEditor : taskEditor
+            });
         };
         this.onCloseForm();
     }
@@ -84,8 +108,11 @@ class App extends Component {
     }
 
     render() {
-        var { tasks, isDisplayForm } = this.state;
-        var displayForm = isDisplayForm ? <TaskForm onSubmit={ this.onSubmit } onCloseForm = { this.onCloseForm }/> : '';
+        var { tasks, isDisplayForm, taskEditor } = this.state;
+        var displayForm = isDisplayForm ? <TaskForm 
+                                                    onSubmit={ this.onSubmit }
+                                                    onCloseForm = { this.onCloseForm } 
+                                                    taskEditor = { taskEditor }/> : '';
         return (
             <div className="container" onLoad={ this.onGenerateData }>
                 <div className="text-center">
@@ -97,7 +124,7 @@ class App extends Component {
                         { displayForm }
                     </div>
                     <div className= { isDisplayForm ? "col-xs-8 col-sm-8 col-md-8 col-lg-8" : "col-xs-12 col-sm-12 col-md-12 col-lg-12" }>
-                        <button type="button" className="btn btn-primary" onClick={ this.onCloseForm }>
+                        <button type="button" className="btn btn-primary" onClick={ this.onToggleForm }>
                             <span className="fa fa-plus mr-5" />
                             Thêm Công Việc
                         </button>
@@ -105,7 +132,8 @@ class App extends Component {
                         <TaskList 
                                 tasks = {tasks}
                                 onUpdateStatus = { this.onUpdateStatus } 
-                                onDelete = { this.onDelete }/>
+                                onDelete = { this.onDelete }
+                                onUpdateItem = { this.onUpdateItem } />
                     </div>
                 </div>
             </div>
