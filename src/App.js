@@ -15,6 +15,11 @@ class App extends Component {
             filter : {
                 name: "",
                 status: -1
+            },
+            keyword: "",
+            sort : {
+                by: "name",
+                value: 1
             }
         };
     }
@@ -121,8 +126,23 @@ class App extends Component {
         return result;
     }
 
+    onSearch = (keyword) => {
+        this.setState({
+            keyword: keyword
+        });
+    }
+
+    onSort = (sortBy, sortValue) => {
+        this.setState({
+            sort : {
+                by: sortBy,
+                value: sortValue
+            }
+        });
+    }
+
     render() {
-        var { tasks, isDisplayForm, taskEditor, filter } = this.state;
+        var { tasks, isDisplayForm, taskEditor, filter, keyword, sort } = this.state;
         if(filter){
             if(filter.name){
                 tasks = tasks.filter((task) =>{
@@ -135,6 +155,25 @@ class App extends Component {
                 }else{
                     return task.status === (filter.status === 1 ? true : false);
                 }
+            });
+        }
+        if(keyword){
+            tasks = tasks.filter((task) =>{
+                return task.name.toLowerCase().indexOf(keyword.toLowerCase()) !== -1;
+            });
+        }
+        if(sort.by==="name"){
+            tasks.sort((a,b) => {
+                if(a.name.toLowerCase() >b.name.toLowerCase()) return sort.value;
+                else if(a.name.toLowerCase() <b.name.toLowerCase()) return - sort.value;
+                else return 0;
+            });
+        }
+        else{
+            tasks.sort((a,b) => {
+                if(a.status >b.status) return -sort.value;
+                else if(a.status <b.status) return sort.value;
+                else return 0;
             });
         }
         var displayForm = isDisplayForm ? <TaskForm 
@@ -156,7 +195,11 @@ class App extends Component {
                             <span className="fa fa-plus mr-5" />
                             Thêm Công Việc
                         </button>
-                        <Control />
+                        <Control 
+                            onSearch={ this.onSearch } 
+                            onSort={ this.onSort }
+                            sortBy={ sort.by }
+                            sortValue={ sort.value }/>
                         <TaskList 
                                 tasks = {tasks}
                                 onUpdateStatus = { this.onUpdateStatus } 
